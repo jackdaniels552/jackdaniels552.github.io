@@ -1,0 +1,213 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background: #222;
+  overflow-x: hidden;
+}
+
+#animationOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: rgba(34,34,34,0.35);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.sidebar .logo img {
+  width: 180px;
+  margin-bottom: 20px;
+  align-self: center;
+}
+
+#sidebar-content {
+  flex: 1;
+  width: 100%;
+}
+
+.sidebar button {
+  margin: 8px 0;
+  width: 200px;
+  border-radius: 12px;
+  border: none;
+  padding: 10px;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sidebar button:hover { background: #666; }
+
+#resetBtn {
+  background-color: #e74c3c;
+}
+#resetBtn:hover { background-color: #ff5c5c; }
+
+.sidebar footer {
+  font-size: 0.8em;
+  text-align: center;
+  margin-top: 10px;
+}
+
+#animationControls {
+  margin-top: 20px;
+  width: 100%;
+}
+
+#animationControls .toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+}
+
+.main {
+  margin-left: 260px;
+  padding: 20px;
+  background: rgba(34,34,34,0.3);
+  backdrop-filter: blur(5px);
+  min-height: 100vh;
+  z-index: 1;
+  position: relative;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+input[type=text], textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  background: #444;
+  color: #fff;
+}
+
+button {
+  border-radius: 12px;
+  border: none;
+  padding: 8px 14px;
+  background: #555;
+  color: #fff;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover { background: #777; }
+
+/* Upload icon and add dependency buttons */
+#iconBtn, #addDependency {
+  width: auto;
+  padding: 8px 12px;
+  margin-top: 5px;
+}
+
+/* Dependency items */
+.dependency-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  padding: 6px 10px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+}
+.dependency-item div i {
+  margin-left: 10px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1em;
+}
+.dependency-item div i:hover { color: #ff6666; }
+
+/* Modals */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modal-content {
+  background: #333;
+  padding: 20px;
+  border-radius: 12px;
+  min-width: 300px;
+}
+.hidden { display: none; }
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+.switch input { display: none; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 34px;
+  transition: 0.4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+input:checked + .slider { background-color: #2196F3; }
+input:checked + .slider:before { transform: translateX(26px); }
+
+/* Animations */
+@keyframes fall { 0% {top:-50px;} 100% {top:100vh;} }
+@keyframes sway { 0%,100% {transform: translateX(0);} 50% {transform: translateX(15px);} }
+
+/* Collapsed manifest */
+#manifestPreview {
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  border-radius: 10px;
+  max-height: 200px; /* collapsed height */
+  overflow: hidden;
+  cursor: pointer;
+  transition: max-height 0.3s ease;
+}
+
+#manifestPreview.expanded {
+  max-height: 400px; /* expanded height */
+  overflow: auto;
+}
