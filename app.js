@@ -103,7 +103,7 @@ manifestPreview.addEventListener("click", () => {
 // ------------------- MANIFEST -------------------
 function getManifest() {
   return {
-    name: "Dee_Valhiem_Modpack",
+    name: "Valhiem_Modpack",
     version_number: document.getElementById("version").value || "0.0.1",
     website_url: document.getElementById("website").value || "https://example.com",
     description: document.getElementById("description").value || "",
@@ -292,3 +292,4 @@ function stopAnimation(){
 }
 
 window.addEventListener("DOMContentLoaded", init);
+
