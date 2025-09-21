@@ -1,5 +1,5 @@
 // ========== SETTINGS ==========
-const SHOW_ANIMATION_CONTROLS = true; // set false to hide animation toggles
+const SHOW_ANIMATION_CONTROLS = false; // set false to hide animation toggles
 const DEFAULT_ANIMATION = "halloween";      // default animation to start
 // ===============================
 
@@ -292,3 +292,4 @@ function stopAnimation(){
 }
 
 window.addEventListener("DOMContentLoaded", init);
+
