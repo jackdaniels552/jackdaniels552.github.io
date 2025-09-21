@@ -292,4 +292,3 @@ function stopAnimation(){
 }
 
 window.addEventListener("DOMContentLoaded", init);
-

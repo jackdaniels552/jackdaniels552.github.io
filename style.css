@@ -22,7 +22,7 @@ body {
   top: 0;
   left: 0;
   width: 240px;
-  height: 100vh;
+  height: 96vh;
   background: rgba(34,34,34,0.35);
   backdrop-filter: blur(5px);
   z-index: 2;
@@ -62,24 +62,38 @@ body {
 }
 #resetBtn:hover { background-color: #ff5c5c; }
 
+/* Sidebar Footer */
 .sidebar footer {
-  font-size: 0.8em;
+  font-size: 0.85em;       /* slightly larger for readability */
   text-align: center;
   margin-top: 10px;
+  display: block;           /* treat children naturally */
 }
 
-#animationControls {
-  margin-top: 20px;
-  width: 100%;
+.sidebar footer .footer-text {
+  white-space: nowrap;      /* keep text + heart + name on one line */
+  margin-bottom: 20px;      /* space between text and social icons */
+  display: block;           /* full-width block so margin applies */
 }
 
-#animationControls .toggle {
+#socialLinks {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 10px;
-  margin-bottom: 8px;
+  justify-content: center;  /* center icons under text */
+  gap: 12px;                /* spacing between icons */
 }
+
+#socialLinks a {
+  color: #fff;
+  font-size: 1em;           /* slightly smaller than before */
+  transition: color 0.2s;
+}
+
+#socialLinks a:hover {
+  color: #ff6666;           /* hover color effect */
+}
+
+
+
 
 .main {
   margin-left: 260px;
