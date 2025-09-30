@@ -1,23 +1,23 @@
 const THUNDERSTORE_API = "https://thunderstore.io/api/experimental/package/";
 
 async function searchMods(query) {
-    if (!query) return [];
+  try {
     const proxy = "https://api.allorigins.win/get?url=";
-    const url = `${THUNDERSTORE_API}?query=${encodeURIComponent(query)}&game=valheim`;
+    const apiUrl = `${THUNDERSTORE_API}?query=${encodeURIComponent(query)}&game=valheim`;
+    const res = await fetch(proxy + encodeURIComponent(apiUrl));
+    const dataText = await res.json();
+    const data = JSON.parse(dataText.contents);
 
-    try {
-        const res = await fetch(proxy + encodeURIComponent(url));
-        const data = await res.json();
-        const results = JSON.parse(data.contents).results || [];
+    if (!data.packages || data.packages.length === 0) return [];
 
-        return results.map(m => ({
-            name: m.package_name,
-            displayName: m.display_name,
-            description: m.summary,
-            icon: m.icon_url
-        }));
-    } catch (e) {
-        console.error("Error fetching mods:", e);
-        return [];
-    }
+    return data.packages.map(mod => ({
+      name: mod.display_name || mod.package_name,
+      description: mod.summary || "No description",
+      image: mod.icon ? "https://thunderstore.io" + mod.icon : "placeholder.png",
+      url: "https://thunderstore.io/package/" + mod.package_name
+    }));
+  } catch (err) {
+    console.error("Error fetching mods:", err);
+    return [];
+  }
 }
