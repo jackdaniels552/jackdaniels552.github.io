@@ -1,112 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Modpack Generator</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valheim Modpack Creator</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="animationOverlay"></div>
+    <div class="container">
+        <header>
+            <h1>Valheim Modpack Creator</h1>
+        </header>
 
-  <div class="sidebar">
-    <div class="logo">
-      <img src="https://trugrind.net//assets/img/jdlogo.png" alt="Logo">
+        <section class="search-section">
+            <input type="text" id="modSearch" placeholder="Search for mods..." />
+            <button id="searchBtn"><i class="fas fa-magnifying-glass"></i> Search</button>
+        </section>
+
+        <section class="mods-list" id="modsList"></section>
+
+        <section class="dependencies">
+            <h2>Dependencies</h2>
+            <ul id="dependenciesList"></ul>
+            <button id="addDepBtn"><i class="fas fa-plus"></i> Add Dependency</button>
+        </section>
+
+        <section class="export">
+            <button id="exportBtn"><i class="fas fa-file-zipper"></i> Export Modpack</button>
+        </section>
+
+        <footer>
+            <span>❤️ Made with love by Jack Daniels</span> |
+            <span id="visitorCount">Visitors: 0</span>
+        </footer>
     </div>
 
-    <div id="sidebar-content">
-      <button id="loadBtn">Load Modpack</button>
-      <button id="exportBtn">Export Modpack</button>
-      <button id="resetBtn">Reset</button>
+    <!-- JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-      <div id="animationControls"></div>
-    </div>
+    <!-- Thunderstore API -->
+    <script src="thunderstore.js"></script>
 
-    <footer>
-      Made with <i class="fa fa-heart"></i> by Jack Daniels
-      <div id="socialLinks"></div>
-    </footer>
-  </div>
-
-  <div class="main">
-    <div class="form-group">
-      <button id="iconBtn">Upload Icon</button>
-      <input type="file" id="iconUpload" accept="image/png" style="display:none">
-      <div id="iconPreview"></div>
-    </div>
-    
-    <div class="form-group">
-      <label for="version">Version:</label>
-      <input type="text" id="version" placeholder="0.0.1">
-    </div>
-
-    <div class="form-group">
-      <label for="website">Website URL:</label>
-      <input type="text" id="website" placeholder="https://example.com">
-    </div>
-
-    <div class="form-group">
-      <label for="description">Description:</label>
-      <textarea id="description" placeholder="Enter modpack description"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="readme">README.md:</label>
-      <textarea id="readme" placeholder="Write your README content here..."></textarea>
-    </div>
-
-    <div class="form-group">
-      <button id="addDependency">Add Dependency</button>
-      <div id="dependencyList"></div>
-    </div>
-
-    <div class="form-group">
-      <label>Manifest Preview:</label>
-      <pre id="manifestPreview" class="collapsed"></pre>
-    </div>
-  </div>
-
-  <!-- Edit Dependency Modal -->
-  <div id="editModal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Edit Dependency</h3>
-      <input type="text" id="editDependencyInput">
-      <button id="saveDependencyBtn">Save</button>
-      <button id="cancelEditBtn">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Delete Confirmation Modal -->
-  <div id="confirmModal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Confirm Delete?</h3>
-      <button id="confirmDeleteBtn">Yes</button>
-      <button id="cancelDeleteBtn">No</button>
-    </div>
-  </div>
-
-  <!-- Export Modal -->
-  <div id="exportModal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Export Modpack</h3>
-      <input type="text" id="exportNameInput" placeholder="Enter filename">
-      <button id="confirmExportBtn">Export</button>
-      <button id="cancelExportBtn">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Error Modal -->
-  <div id="errorModal" class="modal hidden">
-    <div class="modal-content">
-      <p id="errorMessage"></p>
-      <button id="closeErrorBtn">Close</button>
-    </div>
-  </div>
-
-  <input type="file" id="loadInput" style="display:none">
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js"></script>
-  <script src="app.js"></script>
+    <!-- Main Script -->
+    <script src="script.js"></script>
 </body>
 </html>
-
