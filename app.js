@@ -199,7 +199,7 @@ function exportZip(){
 
   const zip = new JSZip();
   zip.file("manifest.json", JSON.stringify(getManifest(), null, 2));
-  zip.file("readme.md", document.getElementById("readme").value || "");
+  zip.file("README.md", document.getElementById("readme").value || "");
 
   const iconFile = document.getElementById("iconUpload").files[0];
   if(iconFile) zip.file("icon.png", iconFile);
@@ -227,7 +227,7 @@ function loadZip(e){
       renderDependencies();
       updateManifestPreview();
     });
-    if(zip.files["readme.md"]) zip.files["readme.md"].async("string").then(text => document.getElementById("readme").value = text);
+    if(zip.files["README.md"]) zip.files["README.md"].async("string").then(text => document.getElementById("readme").value = text);
     if(zip.files["icon.png"]) zip.files["icon.png"].async("blob").then(blob => {
       const img = new Image();
       img.src = URL.createObjectURL(blob);
@@ -292,4 +292,5 @@ function stopAnimation(){
 }
 
 window.addEventListener("DOMContentLoaded", init);
+
 
