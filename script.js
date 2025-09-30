@@ -1,94 +1,69 @@
 let modpack = [];
-const searchInput = document.getElementById("modSearch");
-const searchButton = document.getElementById("searchButton");
-const searchResults = document.getElementById("searchResults");
 const modpackList = document.getElementById("modpackList");
-const exportBtn = document.getElementById("exportBtn");
+const visitorCountEl = document.getElementById("visitorCount");
 
-let typingTimer;
-const typingDelay = 800; // ms
+// Unique visitor counter (simple localStorage for demo)
+let count = localStorage.getItem("visitorCount") || 0;
+count++;
+visitorCountEl.textContent = count;
+localStorage.setItem("visitorCount", count);
 
-function renderMods(mods) {
-  searchResults.innerHTML = "";
-  mods.forEach(mod => {
-    const card = document.createElement("div");
-    card.classList.add("mod-card");
-    card.innerHTML = `
-      <img src="${mod.image}" alt="${mod.name}">
-      <h3>${mod.name}</h3>
-      <p>${mod.description}</p>
-      <button class="addBtn"><i class="fas fa-plus"></i> Add</button>
-    `;
-    card.querySelector(".addBtn").onclick = () => addMod(mod);
-    searchResults.appendChild(card);
-  });
+const searchInput = document.getElementById("modSearch");
+let searchTimeout;
+
+searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => performSearch(searchInput.value), 1000);
+});
+
+document.getElementById("searchBtn").addEventListener("click", () => performSearch(searchInput.value));
+
+function performSearch(query) {
+    if (!query) return;
+    searchMods(query);
+}
+
+function addToModpack(mod) {
+    if (modpack.find(m => m.id === mod.id)) return alert("Mod already added!");
+    modpack.push(mod);
+    renderModpack();
+}
+
+function removeFromModpack(id) {
+    if (!confirm("Remove this mod from the modpack?")) return;
+    modpack = modpack.filter(m => m.id !== id);
+    renderModpack();
 }
 
 function renderModpack() {
-  modpackList.innerHTML = "";
-  modpack.forEach((mod, idx) => {
-    const card = document.createElement("div");
-    card.classList.add("modpack-card");
-    card.innerHTML = `
-      <img src="${mod.image}" alt="${mod.name}">
-      <h3>${mod.name}</h3>
-      <button class="removeBtn"><i class="fas fa-trash"></i> Remove</button>
-    `;
-    card.querySelector(".removeBtn").onclick = () => {
-      if(confirm(`Remove ${mod.name} from modpack?`)) {
-        modpack.splice(idx, 1);
-        renderModpack();
-      }
-    };
-    modpackList.appendChild(card);
-  });
+    modpackList.innerHTML = "";
+    modpack.forEach(mod => {
+        const li = document.createElement("li");
+        li.textContent = mod.name;
+        const removeBtn = document.createElement("button");
+        removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+        removeBtn.onclick = () => removeFromModpack(mod.id);
+        li.appendChild(removeBtn);
+        modpackList.appendChild(li);
+    });
 }
 
-function addMod(mod) {
-  if(!modpack.find(m => m.name === mod.name)) {
-    modpack.push(mod);
-    renderModpack();
-  } else {
-    alert(`${mod.name} is already in the modpack`);
-  }
-}
+// Export modpack
+document.getElementById("exportBtn").addEventListener("click", async () => {
+    if (modpack.length === 0) return alert("No mods in modpack!");
+    const zipName = prompt("Enter modpack name:", "MyModpack");
+    if (!zipName) return;
 
-async function performSearch() {
-  const query = searchInput.value.trim();
-  if(!query) return;
-  const mods = await searchMods(query);
-  if(mods.length === 0) {
-    searchResults.innerHTML = "<p>No mods found.</p>";
-  } else {
-    renderMods(mods);
-  }
-}
+    // Validate modpack (check for duplicate names)
+    const names = modpack.map(m => m.name);
+    const uniqueNames = new Set(names);
+    if (names.length !== uniqueNames.size) alert("Warning: Duplicate mod names detected!");
 
-searchInput.addEventListener("keyup", () => {
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(performSearch, typingDelay);
-});
-
-searchButton.addEventListener("click", performSearch);
-
-exportBtn.addEventListener("click", () => {
-  if(modpack.length === 0) return alert("No mods in modpack");
-  const zipName = prompt("Enter a name for your modpack ZIP:", "ValheimModpack") || "ValheimModpack";
-  const zip = new JSZip();
-  modpack.forEach(mod => {
-    zip.file(`${mod.name}.txt`, `Name: ${mod.name}\nURL: ${mod.url}\nDescription: ${mod.description}`);
-  });
-  zip.generateAsync({type:"blob"}).then(content => {
+    const zip = new JSZip();
+    zip.file("modpack.json", JSON.stringify(modpack, null, 2));
+    const content = await zip.generateAsync({ type: "blob" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(content);
-    a.download = zipName + ".zip";
+    a.download = `${zipName}.zip`;
     a.click();
-  });
 });
-
-// Simple visitor counter using localStorage
-const visitorCounter = document.getElementById("visitorCount");
-let visitors = localStorage.getItem("visitors") || 0;
-visitors++;
-localStorage.setItem("visitors", visitors);
-visitorCounter.textContent = "Visitors: " + visitors;
