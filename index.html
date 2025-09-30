@@ -1,52 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valheim Modpack Creator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valheim Modpack Creator</title>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Valheim Modpack Creator</h1>
-        </header>
+  <header>
+    <h1>Valheim Modpack Creator</h1>
+  </header>
 
-        <section class="search-section">
-            <input type="text" id="modSearch" placeholder="Search for mods..." />
-            <button id="searchBtn"><i class="fas fa-magnifying-glass"></i> Search</button>
-        </section>
+  <main>
+    <section class="search-section">
+      <input type="text" id="modSearch" placeholder="Search mods...">
+      <button id="searchButton"><i class="fas fa-search"></i> Search</button>
+      <div id="searchResults"></div>
+    </section>
 
-        <section class="mods-list" id="modsList"></section>
+    <section class="modpack-section">
+      <h2>Modpack</h2>
+      <div id="modpackList"></div>
+      <button id="exportBtn"><i class="fas fa-file-zipper"></i> Export Modpack</button>
+    </section>
+  </main>
 
-        <section class="dependencies">
-            <h2>Dependencies</h2>
-            <ul id="dependenciesList"></ul>
-            <button id="addDepBtn"><i class="fas fa-plus"></i> Add Dependency</button>
-        </section>
+  <footer>
+    <span>Made with <i class="fas fa-heart" style="color:red;"></i> by Jack Daniels</span>
+    <span id="visitorCount">Visitors: 0</span>
+  </footer>
 
-        <section class="export">
-            <button id="exportBtn"><i class="fas fa-file-zipper"></i> Export Modpack</button>
-        </section>
+  <!-- JS Libraries -->
+  <script src="jszip.min.js"></script>
 
-        <footer>
-            <span>❤️ Made with love by Jack Daniels</span> |
-            <span id="visitorCount">Visitors: 0</span>
-        </footer>
-    </div>
-
-    <!-- JSZip -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <!-- Thunderstore API -->
-    <script src="thunderstore.js"></script>
-
-    <!-- Main Script -->
-    <script src="script.js"></script>
+  <!-- Project Scripts -->
+  <script src="thunderstore.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
