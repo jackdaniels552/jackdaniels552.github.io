@@ -1,92 +1,106 @@
-/* General */
+/* Dark modern theme with frosted look */
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #121212;
-  color: #e0e0e0;
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #1e1e2f;
+    color: #fff;
 }
 
-header {
-  padding: 1rem;
-  text-align: center;
-  background: rgba(40,40,40,0.8);
-  backdrop-filter: blur(5px);
+header, footer {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(30,30,40,0.95);
+    backdrop-filter: blur(10px);
 }
 
-h1 {
-  margin: 0;
-  font-size: 2rem;
+footer p {
+    font-size: 0.9rem;
 }
 
 main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  gap: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
 }
 
-.search-section, .modpack-section {
-  background: rgba(40,40,40,0.6);
-  padding: 1rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 900px;
-  backdrop-filter: blur(8px);
+.search-section {
+    margin-bottom: 1.5rem;
 }
 
-input[type="text"] {
-  width: 70%;
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: none;
-  margin-right: 1rem;
-  font-size: 1rem;
+.search-section input {
+    padding: 0.5rem;
+    width: 250px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
 }
 
-button {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  background-color: #1e88e5;
-  color: white;
-  font-size: 1rem;
+.search-section button {
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #3b3b5c;
+    color: white;
+    cursor: pointer;
 }
 
-button:hover {
-  background-color: #1565c0;
+.search-section button:hover {
+    background-color: #5c5cb0;
 }
 
-#searchResults, #modpackList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+#modResults {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+    max-width: 900px;
 }
 
-.mod-card, .modpack-card {
-  background: rgba(0,0,0,0.5);
-  border-radius: 10px;
-  padding: 0.5rem;
-  text-align: center;
-  backdrop-filter: blur(5px);
+.frosted {
+    background: rgba(40,40,60,0.5);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 1rem;
 }
 
-.mod-card img, .modpack-card img {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
+.mod-card {
+    width: 180px;
+    padding: 0.5rem;
+    border-radius: 10px;
+    background: rgba(50,50,70,0.7);
+    text-align: center;
 }
 
-footer {
-  padding: 1rem;
-  text-align: center;
-  background: rgba(40,40,40,0.8);
-  backdrop-filter: blur(5px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.mod-card img {
+    width: 100%;
+    border-radius: 6px;
+}
+
+.mod-card button {
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #5c5cb0;
+    color: white;
+    cursor: pointer;
+}
+
+.mod-card button:hover {
+    background-color: #7c7ce0;
+}
+
+#modpackSection {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 2rem;
+}
+
+#modpackList li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
 }
