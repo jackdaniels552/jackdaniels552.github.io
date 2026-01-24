@@ -1,2 +1,2 @@
-# thunpackgen.github.io
+# jackdaniels552.github.io
 Thunderstore Modpack Generator
