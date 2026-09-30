@@ -1,44 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THIS IS WIP AND CURRENTLY NOT WORKING!</title>
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer">
-
-    <!-- JSZip -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-YQkzy++ZV2lfwW1uZ0mzZ8GdLhvsa1ezHHs31mS2XtZfKjiyDKZVq9h2Wb6V8t+7Wb4a/+uZf7aJv2w3h3TqAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Modpack Studio</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.0/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Valheim Modpack Editor</h1>
-    </header>
+  <div id="animationOverlay"></div>
+  <div class="app">
 
-    <main>
-        <section class="search-section">
-            <input type="text" id="modSearch" placeholder="Search for a mod...">
-            <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
-        </section>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <img id="brandLogo" src="" alt="Logo">
+        <h1 id="brandTitle"></h1>
+        <p id="brandSubtitle"></p>
+      </div>
 
-        <section id="modResults" class="frosted"></section>
+      <div class="sidebar-section">
+        <button id="loadZipBtn" class="btn primary">Load Modpack</button>
+        <button id="exportZip" class="btn primary" style="margin-top:1rem;">Export Modpack</button>
+      </div>
 
-        <section id="modpackSection" class="frosted">
-            <h2>Modpack</h2>
-            <ul id="modpackList"></ul>
-            <button id="exportBtn"><i class="fa-solid fa-file-zipper"></i> Export Modpack</button>
-        </section>
+      <div id="sidebarSocials" class="sidebar-socials"></div>
+    </aside>
+
+    <!-- Main Editor -->
+    <main class="main">
+      <div class="editor">
+
+        <!-- Manifest Core Values -->
+        <label>Name</label>
+        <input type="text" id="manifestName">
+
+        <label>Version Number</label>
+        <input type="text" id="manifestVersion">
+
+        <label>Website URL</label>
+        <input type="text" id="manifestWebsite">
+
+        <label>Description</label>
+        <textarea id="manifestDescription" rows="2"></textarea>
+
+        <!-- Icon Upload -->
+        <label>Icon Upload</label>
+        <div class="file-upload">
+          <input type="file" id="iconInput" accept="image/png, image/jpeg">
+          <small>Saved as a 256x256 PNG (non-square images are center-cropped).</small>
+          <div class="icon-preview" id="iconPreview"></div>
+        </div>
+
+        <!-- Readme -->
+        <label>Readme.md</label>
+        <div class="md-toolbar" data-target="readmeEditor"></div>
+        <textarea id="readmeEditor" rows="6" placeholder="Write your modpack readme here..."></textarea>
+
+        <!-- Changelog (optional) -->
+        <label class="check"><input type="checkbox" id="changelogToggle"> Include CHANGELOG.md (optional)</label>
+        <div id="changelogBox" hidden>
+          <div class="md-toolbar" data-target="changelogEditor"></div>
+          <textarea id="changelogEditor" rows="8" placeholder="## 1.0.0&#10;- Initial release"></textarea>
+        </div>
+
+        <!-- Dependencies -->
+        <div class="deps">
+          <h3>Dependencies</h3>
+          <div id="depsList"></div>
+          <button class="btn secondary" id="addDep">Add Dependency</button>
+          <button class="btn secondary" id="searchDep">Search Thunderstore</button>
+        </div>
+
+        <!-- Manifest Preview -->
+        <details id="manifestPreviewDetails">
+          <summary>Manifest Preview</summary>
+          <pre id="manifestPreview"></pre>
+        </details>
+
+      </div>
     </main>
+  </div>
 
-    <footer>
-        <p>Made with <i class="fa-solid fa-heart" style="color:red;"></i> by Jack Daniels | Unique visitors: <span id="visitorCount">0</span></p>
-    </footer>
+  <!-- Modals -->
+  <div class="modal" id="exportModal">
+    <div class="modal-content">
+      <h3>Export Modpack</h3>
+      <label>Filename:</label>
+      <input type="text" id="exportFilename" class="modal-input">
+      <div class="modal-buttons">
+        <button class="btn secondary" onclick="closeExportModal()">Cancel</button>
+        <button class="btn primary" onclick="exportZip()">Done</button>
+      </div>
+    </div>
+  </div>
 
-    <script src="thunderstore.js"></script>
-    <script src="script.js"></script>
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h3>Edit Dependency</h3>
+      <input type="text" id="editInput" class="modal-input">
+      <div class="modal-buttons">
+        <button class="btn secondary" onclick="closeEditModal()">Cancel</button>
+        <button class="btn primary" onclick="saveEditDep()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="searchModal">
+    <div class="modal-content wide">
+      <h3>Search Thunderstore</h3>
+      <div class="search-row">
+        <input type="text" id="searchInput" class="modal-input" placeholder="Mod name, e.g. Epic Loot">
+        <button class="btn primary" id="searchGo">Search</button>
+      </div>
+      <p id="searchStatus" class="search-status"></p>
+      <div id="searchResults" class="search-results"></div>
+      <div class="modal-buttons"><button class="btn secondary" onclick="closeSearchModal()">Done</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="messageModal">
+    <div class="modal-content">
+      <h3 id="messageTitle">Message</h3>
+      <p id="messageText"></p>
+      <div class="modal-buttons" id="messageButtons"></div>
+    </div>
+  </div>
+
+  <footer class="footer">Made by Jack Daniels with <span class="heart">♥</span><div id="visitorCount" hidden></div></footer>
+
+  <script src="app.js"></script>
 </body>
 </html>
-
