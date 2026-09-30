@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", init);
 const APP_CONFIG = {
   logoImg: "https://trugrind.net/assets/img/TruGrindtransparent.png",
   title: "Unoffical Thunderstore Modpack Generator",
-  subtitle: "Generator",
+  subtitle: "This project is not affiliated with, endorsed by, or associated with Thunderstore.",
   SOCIALS: [
     { url: "https://github.com/", icon: "🐙", enabled: true },
     { url: "https://twitter.com/", icon: "🐦", enabled: false },
