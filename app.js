@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 const APP_CONFIG = {
   logoImg: "https://trugrind.net/assets/img/TruGrindtransparent.png",
-  title: "Modpack Studio",
+  title: "Thunder Store Modpack Generator",
   subtitle: "Generator",
   SOCIALS: [
     { url: "https://github.com/", icon: "🐙", enabled: true },
