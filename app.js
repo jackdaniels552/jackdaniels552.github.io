@@ -25,6 +25,7 @@ function $(id) { return document.getElementById(id); }
 function randomString(prefix) { return prefix + Math.random().toString(36).substring(2, 8); }
 function rnd(n) { return Math.floor(Math.random() * n); }
 
+const PROXY_TOKEN = "oMlfwujuDYIAMk0ek6Xx@h3el3[J*T.2d/PpVVO):+51{/SZ!=ertsY-@ybC2T8vw-Zb9xKggH1cg;s]XBtGj*U9;.M.E5R1)'\\W\\qwS9Qc.#xrpr3tJ?A'5CJ!f7\\Y+MhF";
 const state = {
   manifest: {
     name: randomString("Modpack_"),
@@ -490,11 +491,9 @@ function renderMarkdown(src) {
 let searchToken = 0;
 
 async function tsFetch(path) {
-  const res = await fetch(APP_CONFIG.thunderstore.base + path, {
-    headers: {
-      Accept: "application/json",
-      "X-Proxy-Token": "oMlfwujuDYIAMk0ek6Xx@h3el3[J*T.2d/PpVVO):+51{/SZ!=ertsY-@ybC2T8vw-Zb9xKggH1cg;s]XBtGj*U9;.M.E5R1)'\W\qwS9Qc.#xrpr3tJ?A'5CJ!f7\Y+MhF"
-    }
+  const sep = path.includes("?") ? "&" : "?";
+  const res = await fetch(APP_CONFIG.thunderstore.base + path + sep + "t=" + PROXY_TOKEN, {
+    headers: { Accept: "application/json" }
   });
   if (!res.ok) {
     // Include the start of the response body so the real reason is visible (e.g. a bot-block page)
@@ -593,9 +592,8 @@ async function addFromSearch(p, btn) {
 async function loadVisitorCount() {
   if (!APP_CONFIG.visitorCounter) return;
   try {
-    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/hit", {
-      cache: "no-store",
-      headers: { "X-Proxy-Token": "oMlfwujuDYIAMk0ek6Xx@h3el3[J*T.2d/PpVVO):+51{/SZ!=ertsY-@ybC2T8vw-Zb9xKggH1cg;s]XBtGj*U9;.M.E5R1)'\W\qwS9Qc.#xrpr3tJ?A'5CJ!f7\Y+MhF" }
+    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/hit?t=" + PROXY_TOKEN, {
+      cache: "no-store"
     });
     if (!res.ok) return;
     const d = await res.json();
