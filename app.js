@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", init);
 
 const APP_CONFIG = {
   logoImg: "https://trugrind.net/assets/img/TruGrindtransparent.png",
-  title: "Unoffical Thunderstore Modpack Generator",
-  subtitle: "This project is not affiliated with, endorsed by, or associated with Thunderstore.",
+  title: "Thunder Store Modpack Generator",
+  subtitle: "Generator",
   SOCIALS: [
     { url: "https://github.com/", icon: "🐙", enabled: true },
     { url: "https://twitter.com/", icon: "🐦", enabled: false },
@@ -490,7 +490,12 @@ function renderMarkdown(src) {
 let searchToken = 0;
 
 async function tsFetch(path) {
-  const res = await fetch(APP_CONFIG.thunderstore.base + path, { headers: { Accept: "application/json" } });
+  const res = await fetch(APP_CONFIG.thunderstore.base + path, {
+    headers: {
+      Accept: "application/json",
+      "X-Proxy-Token": "oMlfwujuDYIAMk0ek6Xx@h3el3[J*T.2d/PpVVO):+51{/SZ!=ertsY-@ybC2T8vw-Zb9xKggH1cg;s]XBtGj*U9;.M.E5R1)'\W\qwS9Qc.#xrpr3tJ?A'5CJ!f7\Y+MhF"
+    }
+  });
   if (!res.ok) {
     // Include the start of the response body so the real reason is visible (e.g. a bot-block page)
     const body = (await res.text().catch(() => "")).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
@@ -588,7 +593,10 @@ async function addFromSearch(p, btn) {
 async function loadVisitorCount() {
   if (!APP_CONFIG.visitorCounter) return;
   try {
-    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/hit", { cache: "no-store" });
+    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/hit", {
+      cache: "no-store",
+      headers: { "X-Proxy-Token": "oMlfwujuDYIAMk0ek6Xx@h3el3[J*T.2d/PpVVO):+51{/SZ!=ertsY-@ybC2T8vw-Zb9xKggH1cg;s]XBtGj*U9;.M.E5R1)'\W\qwS9Qc.#xrpr3tJ?A'5CJ!f7\Y+MhF" }
+    });
     if (!res.ok) return;
     const d = await res.json();
     const el = $("visitorCount");
