@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", init);
 
 const APP_CONFIG = {
+  logoFolder: "assets/logos/",   // folder in your site that holds logo files (used by the admin Appearance tab)
   logoImg: "https://trugrind.net/assets/img/TruGrindtransparent.png",
   title: "Modpack Studio",
   subtitle: "Generator",
@@ -322,7 +323,7 @@ async function loadEffect() {
   try {
     const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 2000);
     const res = await fetch(APP_CONFIG.thunderstore.base + "/api/config", { signal: ctrl.signal, cache: "no-store" });
-    if (res.ok) { const d = await res.json(); if (d.effect === "none" || EFFECTS[d.effect]) effect = d.effect; }
+    if (res.ok) { const d = await res.json(); if (d.effect === "none" || EFFECTS[d.effect]) effect = d.effect; applyBranding(d.branding); }
   } catch (err) { /* use the default */ }
   initAnimations(effect);
 }
@@ -656,4 +657,19 @@ async function loadCommunities() {
     try { localStorage.setItem("vhme.community", sel.value); } catch (e) { /* ignore */ }
     $("searchResults").innerHTML = ""; setSearchStatus("");
   };
+}
+
+// ---------- Branding (name, page title and logo are set on the admin page) ----------
+function logoUrl(v) { return /^https:\/\//.test(v) ? v : APP_CONFIG.logoFolder + encodeURIComponent(v); }
+
+function applyBranding(b) {
+  if (!b) return;
+  if (b.name) $("brandTitle").innerText = b.name;
+  if (b.subtitle) $("brandSubtitle").innerText = b.subtitle;
+  if (b.page_title) document.title = b.page_title;
+  if (b.logo) {
+    const img = $("brandLogo");
+    img.onerror = () => { img.onerror = null; img.src = APP_CONFIG.logoImg; };   // bad file name: fall back to the default logo
+    img.src = logoUrl(b.logo);
+  }
 }
