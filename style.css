@@ -159,9 +159,6 @@ details pre { max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
 .modal-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
 .modal-content p { white-space: pre-line; }
 .file-upload small { color: #9ca3af; }
-.snowflake { position: absolute; top: -5px; width: 5px; height: 5px; background: white; border-radius: 50%; opacity: 0.8; animation: fall linear infinite; }
-@keyframes fall { 0% { transform: translateY(0); } 100% { transform: translateY(100vh); } }
-@media (prefers-reduced-motion: reduce) { .snowflake { animation: none; } }
 @media (max-width: 700px) { .app { flex-direction: column; } .sidebar { flex: none; height: auto; position: static; } }
 
 /* Markdown toolbar + changelog */
@@ -194,3 +191,40 @@ details pre { max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
 .search-item .btn { flex: none; }
 
 .footer #visitorCount { margin-top: 0.25rem; font-size: 0.85rem; }
+
+/* Dependency rows: fixed-size action buttons so icons always line up */
+.dep-item span { flex: 1; min-width: 0; overflow-wrap: anywhere; padding-right: 0.5rem; }
+.dep-item .dep-actions { display: flex; gap: 0.25rem; flex: none; }
+.dep-item button { width: 2.25rem; height: 2rem; margin-left: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Background effects */
+.fx { position: absolute; opacity: 0.8; }
+.fx-snow { top: -5px; width: 5px; height: 5px; background: #fff; border-radius: 50%; animation: fall linear infinite; }
+.fx-rain { top: -40px; width: 1px; height: 30px; background: linear-gradient(transparent, #93c5fd); animation: fall linear infinite; }
+.fx-embers { bottom: -10px; width: 4px; height: 4px; background: #fb923c; border-radius: 50%; box-shadow: 0 0 6px #f97316; animation: rise linear infinite; }
+.fx-stars { width: 3px; height: 3px; background: #fff; border-radius: 50%; animation: twinkle ease-in-out infinite; }
+@keyframes fall { 0% { transform: translateY(0); } 100% { transform: translateY(110vh); } }
+@keyframes rise { 0% { transform: translate(0, 0); opacity: 0; } 10% { opacity: 0.9; } 100% { transform: translate(var(--dx, 0), -110vh); opacity: 0; } }
+@keyframes twinkle { 0%, 100% { opacity: 0.1; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fx { animation: none; } }
+
+/* Admin page */
+.admin { flex: 1; width: 100%; max-width: 900px; margin: 0 auto; padding: 1rem; box-sizing: border-box; }
+.admin select.modal-input { flex: 1; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; }
+.stat { background: rgba(31,41,55,0.85); border-radius: 0.75rem; padding: 0.75rem 1rem; }
+.stat .num { font-size: 1.6rem; font-weight: 700; }
+.country-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; }
+.country-row .cname { flex: 0 0 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.country-row .cbar { flex: 1; background: rgba(31,41,55,0.85); border-radius: 0.4rem; height: 0.7rem; overflow: hidden; }
+.country-row .cbar i { display: block; height: 100%; background: #2563eb; }
+.country-row .ccount { flex: 0 0 3.5rem; text-align: right; }
+
+/* Game selector + admin game list */
+.editor select { width: 100%; box-sizing: border-box; padding: 0.5rem; border-radius: 0.5rem; border: none; background: rgba(31,41,55,0.85); color: #e5e7eb; }
+.comm-list { max-height: 40vh; overflow-y: auto; margin: 0.5rem 0; }
+.comm-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.3rem 0.5rem; border-radius: 0.4rem; cursor: pointer; }
+.comm-row:hover { background: rgba(31,41,55,0.85); }
+.comm-row .cid { margin-left: auto; color: #9ca3af; font-size: 0.8rem; }
+.comm-row.off .cn { color: #6b7280; text-decoration: line-through; }
+.admin .search-row { margin-top: 0.5rem; flex-wrap: wrap; }

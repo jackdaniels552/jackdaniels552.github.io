@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Modpack Studio - Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="admin">
+    <div class="editor" id="loginBox">
+      <h3>Admin sign-in</h3>
+      <label for="pw">Password</label>
+      <input type="password" id="pw" autocomplete="current-password">
+      <p id="loginMsg" class="search-status"></p>
+      <button class="btn primary" id="loginBtn">Sign in</button>
+    </div>
+
+    <div id="dash" hidden>
+      <div class="editor"><div class="stat-grid" id="stats"></div></div>
+      <div class="editor"><h3>Visitors, last 30 days</h3><div id="chart"></div></div>
+      <div class="editor"><h3>Countries</h3><div id="countries"></div></div>
+      <div class="editor">
+        <h3>Background effect</h3>
+        <div class="search-row">
+          <select id="effect" class="modal-input"></select>
+          <button class="btn primary" id="saveEffect">Save</button>
+        </div>
+        <p id="effectMsg" class="search-status"></p>
+      </div>
+      <div class="editor">
+        <h3>Games (Thunderstore communities)</h3>
+        <p id="commCount" class="search-status"></p>
+        <div class="search-row">
+          <input type="text" id="commFilter" class="modal-input" placeholder="Filter games...">
+          <button class="btn secondary" id="commReload">Reload list</button>
+        </div>
+        <div id="commList" class="comm-list"></div>
+        <div class="search-row">
+          <button class="btn secondary" id="commAllOn">Enable shown</button>
+          <button class="btn secondary" id="commAllOff">Disable shown</button>
+          <button class="btn primary" id="commSave">Save games</button>
+        </div>
+        <div class="search-row">
+          <input type="text" id="commAdd" class="modal-input" placeholder="Add by identifier, e.g. lethal-company">
+          <button class="btn secondary" id="commAddBtn">Add</button>
+        </div>
+        <p id="commMsg" class="search-status"></p>
+      </div>
+      <button class="btn secondary" id="refresh">Refresh</button>
+      <button class="btn secondary" id="signOut">Sign out</button>
+    </div>
+  </main>
+  <footer class="footer">No IP addresses are stored. Only daily totals and country counts.</footer>
+
+<script>
+const BASE = "https://pxy.trugrind.net";   // keep in sync with APP_CONFIG.thunderstore.base in app.js
+const EFFECTS = { none: "None", snow: "Snow", rain: "Rain", stars: "Twinkling stars", embers: "Rising embers" };
+let password = "";
+const $ = id => document.getElementById(id);
+
+async function api(path, opts = {}) {
+  const res = await fetch(BASE + path, { cache: "no-store", ...opts, headers: { "X-Admin-Password": password, ...(opts.headers || {}) } });
+  if (!res.ok) { const e = new Error((await res.text()) || "HTTP " + res.status); e.status = res.status; throw e; }
+  return res.json();
+}
+
+async function load() {
+  const d = await api("/api/admin/stats");
+  const week = d.days.slice(-7).reduce((n, x) => n + x.visits, 0);
+  const cards = [["Total visitors", d.totals.visits], ["Today", d.today.visits], ["Last 7 days", week],
+                 ["Searches", d.totals.searches], ["Exports", d.totals.exports]];
+  $("stats").innerHTML = cards.map(([l, v]) => `<div class="stat"><div class="num">${Number(v).toLocaleString()}</div><div>${l}</div></div>`).join("");
+  drawChart(d.days);
+  drawCountries(d.countries);
+  $("effect").innerHTML = Object.entries(EFFECTS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+  $("effect").value = d.effect;
+  await loadComms();
+}
+
+function drawChart(days) {
+  const W = 600, H = 160, pad = 24, max = Math.max(1, ...days.map(d => d.visits)), bw = (W - pad) / days.length;
+  const bars = days.map((d, i) => {
+    const h = Math.round((H - pad) * d.visits / max);
+    return `<rect x="${pad + i * bw + 1}" y="${H - pad - h}" width="${bw - 2}" height="${h}" rx="2" fill="#2563eb"><title>${d.date}: ${d.visits} visitors</title></rect>`;
+  }).join("");
+  const t = (x, y, s, a = "start") => `<text x="${x}" y="${y}" fill="#9ca3af" font-size="10" text-anchor="${a}">${s}</text>`;
+  $("chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${t(0, 10, max)}${t(0, H - pad, 0)}${bars}${t(pad, H - 6, days[0].date.slice(5))}${t(W, H - 6, days[days.length - 1].date.slice(5), "end")}</svg>`;
+}
+
+function drawCountries(list) {
+  const box = $("countries"); box.innerHTML = "";
+  if (!list.length) { box.innerText = "No visitors recorded yet."; return; }
+  let names; try { names = new Intl.DisplayNames(["en"], { type: "region" }); } catch (e) { names = null; }
+  const flag = c => c === "XX" ? "🌐" : String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65));
+  const max = list[0].count;
+  list.slice(0, 15).forEach(c => {
+    let name = c.code === "XX" ? "Unknown" : c.code;
+    try { if (names && c.code !== "XX") name = names.of(c.code) || c.code; } catch (e) {}
+    const row = document.createElement("div"); row.className = "country-row";
+    row.innerHTML = `<span class="cname"></span><span class="cbar"><i style="width:${Math.max(3, Math.round(100 * c.count / max))}%"></i></span><span class="ccount">${c.count.toLocaleString()}</span>`;
+    row.querySelector(".cname").innerText = `${flag(c.code)} ${name}`;
+    box.appendChild(row);
+  });
+}
+
+async function login() {
+  password = $("pw").value; $("loginMsg").innerText = "Signing in…";
+  try { await load(); $("loginBox").hidden = true; $("dash").hidden = false; $("pw").value = ""; $("loginMsg").innerText = ""; }
+  catch (e) { password = ""; $("loginMsg").innerText = e.status === 401 ? "Wrong password." : (e.message || "Could not reach the server."); }
+}
+
+$("loginBtn").onclick = login;
+$("pw").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+$("refresh").onclick = () => load().catch(e => alert(e.message));
+$("signOut").onclick = () => { password = ""; $("dash").hidden = true; $("loginBox").hidden = false; };
+$("saveEffect").onclick = async () => {
+  $("effectMsg").innerText = "Saving…";
+  try {
+    await api("/api/admin/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ effect: $("effect").value }) });
+    $("effectMsg").innerText = "Saved. Visitors see it the next time they load the page.";
+  } catch (e) { $("effectMsg").innerText = e.message || "Could not save."; }
+};
+
+// ----- Games (communities) -----
+let comms = [];
+async function loadComms() {
+  const d = await api("/api/admin/communities");
+  comms = d.communities; drawComms();
+}
+function shownComms() {
+  const f = $("commFilter").value.trim().toLowerCase();
+  return comms.filter(c => !f || c.name.toLowerCase().includes(f) || c.id.includes(f));
+}
+function drawComms() {
+  const box = $("commList"); box.innerHTML = "";
+  shownComms().forEach(c => {
+    const row = document.createElement("label"); row.className = "comm-row" + (c.enabled ? "" : " off");
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = c.enabled;
+    cb.onchange = () => { c.enabled = cb.checked; row.classList.toggle("off", !c.enabled); countComms(); };
+    const n = document.createElement("span"); n.className = "cn"; n.innerText = c.name;
+    const i = document.createElement("span"); i.className = "cid"; i.innerText = c.id;
+    row.append(cb, n, i); box.appendChild(row);
+  });
+  countComms();
+}
+function countComms() {
+  const on = comms.filter(c => c.enabled).length;
+  $("commCount").innerText = `${on} of ${comms.length} games enabled. Unsaved changes are lost if you leave this page.`;
+}
+async function postSettings(body) {
+  return api("/api/admin/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+$("commFilter").oninput = drawComms;
+$("commAllOn").onclick = () => { shownComms().forEach(c => c.enabled = true); drawComms(); };
+$("commAllOff").onclick = () => { shownComms().forEach(c => c.enabled = false); drawComms(); };
+$("commSave").onclick = async () => {
+  $("commMsg").innerText = "Saving…";
+  try { await postSettings({ disabled: comms.filter(c => !c.enabled).map(c => c.id) }); $("commMsg").innerText = "Saved. Visitors see the change when they next load the page."; }
+  catch (e) { $("commMsg").innerText = e.message || "Could not save."; }
+};
+$("commReload").onclick = async () => {
+  $("commMsg").innerText = "Reloading from Thunderstore…";
+  try { await postSettings({ refresh_communities: true }); await loadComms(); $("commMsg").innerText = "List reloaded."; }
+  catch (e) { $("commMsg").innerText = e.message || "Could not reload."; }
+};
+$("commAddBtn").onclick = async () => {
+  const id = $("commAdd").value.trim().toLowerCase(); if (!id) return;
+  try { await postSettings({ add_community: id }); $("commAdd").value = ""; await loadComms(); $("commMsg").innerText = `Added ${id}.`; }
+  catch (e) { $("commMsg").innerText = e.message || "Could not add."; }
+};
+</script>
+</body>
+</html>

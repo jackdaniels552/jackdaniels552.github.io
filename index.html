@@ -31,6 +31,10 @@
     <main class="main">
       <div class="editor">
 
+        <!-- Game (Thunderstore community) used for dependency search -->
+        <label for="communitySelect">Game</label>
+        <select id="communitySelect"></select>
+
         <!-- Manifest Core Values -->
         <label>Name</label>
         <input type="text" id="manifestName">
@@ -108,7 +112,7 @@
 
   <div class="modal" id="searchModal">
     <div class="modal-content wide">
-      <h3>Search Thunderstore</h3>
+      <h3 id="searchTitle">Search Thunderstore</h3>
       <div class="search-row">
         <input type="text" id="searchInput" class="modal-input" placeholder="Mod name, e.g. Epic Loot">
         <button class="btn primary" id="searchGo">Search</button>

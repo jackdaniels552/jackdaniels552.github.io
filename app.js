@@ -2,14 +2,14 @@ document.addEventListener("DOMContentLoaded", init);
 
 const APP_CONFIG = {
   logoImg: "https://trugrind.net/assets/img/TruGrindtransparent.png",
-  title: "Thunder Store Modpack Generator",
+  title: "Modpack Studio",
   subtitle: "Generator",
   SOCIALS: [
     { url: "https://github.com/", icon: "🐙", enabled: true },
     { url: "https://twitter.com/", icon: "🐦", enabled: false },
     { url: "https://discord.com/", icon: "💬", enabled: true }
   ],
-  animation: { fallingSnow: true },
+  animation: { effect: "snow" },   // default; the admin page can change it for everyone
   visitorCounter: true,   // shows a visit count in the footer (needs proxy.py)
   // Thunderstore blocks direct browser requests (CORS), so point "base" at your own proxy,
   // e.g. "https://ts-proxy.yourname.workers.dev" or "/ts" (see worker.js / README notes).
@@ -25,7 +25,6 @@ function $(id) { return document.getElementById(id); }
 function randomString(prefix) { return prefix + Math.random().toString(36).substring(2, 8); }
 function rnd(n) { return Math.floor(Math.random() * n); }
 
-const PROXY_TOKEN = "oMlfwujuDYIAMk0ek6Xx@h3el3[J*T.2d/PpVVO):+51{/SZ!=ertsY-@ybC2T8vw-Zb9xKggH1cg;s]XBtGj*U9;.M.E5R1)'\\W\\qwS9Qc.#xrpr3tJ?A'5CJ!f7\\Y+MhF";
 const state = {
   manifest: {
     name: randomString("Modpack_"),
@@ -45,7 +44,8 @@ function init() {
   renderSocialLinks();
   renderManifest();
   renderDeps();
-  initAnimations();
+  loadEffect();
+  loadCommunities();
 
   Object.entries(FIELD_MAP).forEach(([id, key]) => {
     const input = $(id);
@@ -111,7 +111,8 @@ function renderDeps() {
     edit.onclick = () => openEditModal(idx, false);
     const del = document.createElement("button"); del.className = "delete"; del.innerText = "🗑️"; del.title = "Delete";
     del.onclick = () => confirmDeleteDep(idx);
-    div.appendChild(edit); div.appendChild(del); c.appendChild(div);
+    const actions = document.createElement("div"); actions.className = "dep-actions";
+    actions.appendChild(edit); actions.appendChild(del); div.appendChild(actions); c.appendChild(div);
   });
   renderManifest();
 }
@@ -304,22 +305,46 @@ function exportZip() {
   const changelog = $("changelogEditor").value;
   if ($("changelogToggle").checked && changelog.trim()) zip.file("CHANGELOG.md", changelog);
   zip.file("icon.png", state.iconBlob);
-  zip.generateAsync({ type: "blob" }).then(content => saveAs(content, filename + ".zip"));
+  zip.generateAsync({ type: "blob" }).then(content => { saveAs(content, filename + ".zip"); pingExport(); });
   closeExportModal();
 }
 
-// Falling snow
-function initAnimations() {
-  if (!APP_CONFIG.animation.fallingSnow) return;
-  const overlay = $("animationOverlay");
-  for (let i = 0; i < 100; i++) {
-    const flake = document.createElement("div");
-    flake.className = "snowflake";
-    flake.style.left = Math.random() * 100 + "%";
-    flake.style.animationDelay = Math.random() * 5 + "s";
-    flake.style.animationDuration = (5 + Math.random() * 5) + "s";
-    overlay.appendChild(flake);
+// Background effects (the admin page can change the effect for everyone)
+const EFFECTS = {   // count, and min/max animation seconds
+  snow:   { count: 100, min: 5,   max: 10 },
+  rain:   { count: 80,  min: 0.8, max: 1.6 },
+  stars:  { count: 70,  min: 2,   max: 5 },
+  embers: { count: 45,  min: 6,   max: 12 }
+};
+
+async function loadEffect() {
+  let effect = APP_CONFIG.animation.effect;
+  try {
+    const ctrl = new AbortController(); setTimeout(() => ctrl.abort(), 2000);
+    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/config", { signal: ctrl.signal, cache: "no-store" });
+    if (res.ok) { const d = await res.json(); if (d.effect === "none" || EFFECTS[d.effect]) effect = d.effect; }
+  } catch (err) { /* use the default */ }
+  initAnimations(effect);
+}
+
+function initAnimations(effect) {
+  const overlay = $("animationOverlay"); overlay.innerHTML = "";
+  const cfg = EFFECTS[effect];
+  if (!cfg) return;
+  for (let i = 0; i < cfg.count; i++) {
+    const el = document.createElement("div");
+    el.className = `fx fx-${effect}`;
+    el.style.left = Math.random() * 100 + "%";
+    if (effect === "stars") el.style.top = Math.random() * 100 + "%";
+    if (effect === "embers") el.style.setProperty("--dx", (Math.random() * 120 - 60) + "px");
+    el.style.animationDelay = Math.random() * 5 + "s";
+    el.style.animationDuration = (cfg.min + Math.random() * (cfg.max - cfg.min)) + "s";
+    overlay.appendChild(el);
   }
+}
+
+function pingExport() {
+  if (APP_CONFIG.visitorCounter) fetch(APP_CONFIG.thunderstore.base + "/api/event?type=export", { cache: "no-store" }).catch(() => {});
 }
 
 // ---------- Changelog (optional) ----------
@@ -491,10 +516,7 @@ function renderMarkdown(src) {
 let searchToken = 0;
 
 async function tsFetch(path) {
-  const sep = path.includes("?") ? "&" : "?";
-  const res = await fetch(APP_CONFIG.thunderstore.base + path + sep + "t=" + PROXY_TOKEN, {
-    headers: { Accept: "application/json" }
-  });
+  const res = await fetch(APP_CONFIG.thunderstore.base + path, { headers: { Accept: "application/json" } });
   if (!res.ok) {
     // Include the start of the response body so the real reason is visible (e.g. a bot-block page)
     const body = (await res.text().catch(() => "")).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
@@ -527,7 +549,18 @@ function filterHits(list, term) {
   return list.map(normalizePackage).filter(p => p && words.every(w => norm(`${p.namespace}${p.name}${p.description}`).includes(w))).slice(0, 25);
 }
 
-function openSearchModal() { $("searchModal").classList.add("show"); $("searchInput").focus(); }
+function selectedCommunity() {
+  const sel = $("communitySelect");
+  return { id: sel.value, name: (sel.selectedOptions[0] || {}).text || sel.value };
+}
+
+function openSearchModal() {
+  const c = selectedCommunity();
+  if (!c.id) { openMessageModal("No games available", "No games are enabled right now.", [okButton()]); return; }
+  $("searchTitle").innerText = `Search Thunderstore: ${c.name}`;
+  $("searchModal").classList.add("show");
+  $("searchInput").focus();
+}
 function closeSearchModal() { $("searchModal").classList.remove("show"); }
 function setSearchStatus(msg) { $("searchStatus").innerText = msg; }
 
@@ -538,7 +571,7 @@ async function runSearch() {
   const box = $("searchResults"); box.innerHTML = "";
   setSearchStatus("Searching…");
   try {
-    const c = encodeURIComponent(APP_CONFIG.thunderstore.community), q = encodeURIComponent(term);
+    const c = encodeURIComponent(selectedCommunity().id), q = encodeURIComponent(term);
     let data;
     try {
       data = await tsFetch(`/api/search?community=${c}&q=${q}`);          // provided by proxy.py
@@ -592,13 +625,35 @@ async function addFromSearch(p, btn) {
 async function loadVisitorCount() {
   if (!APP_CONFIG.visitorCounter) return;
   try {
-    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/hit?t=" + PROXY_TOKEN, {
-      cache: "no-store"
-    });
+    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/hit", { cache: "no-store" });
     if (!res.ok) return;
     const d = await res.json();
     const el = $("visitorCount");
     el.innerText = `${d.total.toLocaleString()} visits (${d.today.toLocaleString()} today)`;
     el.hidden = false;
   } catch (err) { /* the counter is optional, so fail quietly */ }
+}
+
+// ---------- Game (community) selector ----------
+async function loadCommunities() {
+  const sel = $("communitySelect");
+  let list = [], reachable = false;
+  try {
+    const res = await fetch(APP_CONFIG.thunderstore.base + "/api/communities", { cache: "no-store" });
+    if (res.ok) { list = await res.json(); reachable = true; }
+  } catch (err) { /* proxy unreachable: fall back below */ }
+  if (!reachable) {
+    const d = APP_CONFIG.thunderstore.community;
+    list = [{ id: d, name: d }];                     // proxy down: keep the default game so the page still works
+  }                                                  // (if the proxy answered with an empty list, every game is disabled)
+  sel.innerHTML = "";
+  list.forEach(c => { const o = document.createElement("option"); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+  let saved = null;
+  try { saved = localStorage.getItem("vhme.community"); } catch (e) { /* storage unavailable */ }
+  const pick = [saved, APP_CONFIG.thunderstore.community].find(id => id && list.some(c => c.id === id));
+  if (pick) sel.value = pick;
+  sel.onchange = () => {
+    try { localStorage.setItem("vhme.community", sel.value); } catch (e) { /* ignore */ }
+    $("searchResults").innerHTML = ""; setSearchStatus("");
+  };
 }
